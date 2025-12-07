@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NexusAI | Advanced Blog</title>
+    <style>
+        /* --- CSS STYLES --- */
+        :root {
+            --bg-color: #0b0d17;
+            --card-bg: #15192b;
+            --primary: #00f2ea;
+            --secondary: #ff0055;
+            --text-main: #ffffff;
+            --text-muted: #a0a0a0;
+            --font-main: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            font-family: var(--font-main);
+            line-height: 1.6;
+        }
+
+        /* Navbar */
+        nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 5%;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            background: rgba(11, 13, 23, 0.95);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .logo { font-size: 1.5rem; font-weight: bold; text-transform: uppercase; letter-spacing: 2px; cursor: pointer; }
+        .logo span { color: var(--primary); }
+
+        .search-container input {
+            padding: 10px 15px;
+            border-radius: 20px;
+            border: 1px solid #333;
+            background: #1e2235;
+            color: white;
+            outline: none;
+            width: 250px;
+            transition: 0.3s;
+        }
+        .search-container input:focus { border-color: var(--primary); }
+
+        /* Hero */
+        header {
+            text-align: center;
+            padding: 60px 20px 40px;
+            background: radial-gradient(circle at center, rgba(0,242,234,0.1) 0%, rgba(11,13,23,0) 70%);
+        }
+        header h1 { font-size: 3rem; margin-bottom: 10px; color: var(--text-main); }
+        header span { color: var(--primary); }
+
+        /* Filter Section */
+        .filter-container {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            flex-wrap: wrap;
+            margin-bottom: 40px;
+            padding: 0 20px;
+        }
+
+        .filter-btn {
+            background: transparent;
+            border: 1px solid rgba(255,255,255,0.2);
+            color: var(--text-muted);
+            padding: 8px 20px;
+            border-radius: 30px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 0.9rem;
+        }
+
+        .filter-btn:hover, .filter-btn.active {
+            background: var(--primary);
+            color: #000;
+            border-color: var(--primary);
+            box-shadow: 0 0 15px rgba(0, 242, 234, 0.3);
+        }
+
+        /* Grid */
+        .container { max-width: 1200px; margin: 0 auto; padding-bottom: 60px; }
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            padding: 0 20px;
+        }
+
+        /* Cards */
+        .card {
+            background: var(--card-bg);
+            border-radius: 12px;
+            overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            transition: 0.3s;
+            display: flex;
+            flex-direction: column;
+            animation: fadeIn 0.5s ease;
+        }
+
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+
+        .card:hover { transform: translateY(-5px); border-color: var(--primary); }
+
+        .card-img { height: 180px; width: 100%; }
+        .gradient-1 { background: linear-gradient(45deg, #FF0099, #493240); }
+        .gradient-2 { background: linear-gradient(45deg, #00F260, #0575E6); }
+        .gradient-3 { background: linear-gradient(45deg, #8E2DE2, #4A00E0); }
+        
+        .card-content { padding: 20px; flex-grow: 1; display: flex; flex-direction: column; }
+        
+        .tag {
+            font-size: 0.75rem;
+            color: var(--primary);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 10px;
+            font-weight: bold;
+        }
+
+        .card h2 { font-size: 1.3rem; margin-bottom: 10px; }
+        .card p { color: var(--text-muted); font-size: 0.9rem; margin-bottom: 20px; flex-grow: 1; }
+
+        .read-btn {
+            background: rgba(255,255,255,0.05);
+            border: none;
+            color: white;
+            padding: 10px;
+            cursor: pointer;
+            border-radius: 6px;
+            transition: 0.3s;
+        }
+        .read-btn:hover { background: var(--primary); color: #000; }
+
+        /* Modal (Pop-up) */
+        .modal-overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.8);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            opacity: 0;
+            pointer-events: none;
+            transition: 0.3s;
+            backdrop-filter: blur(5px);
+        }
+
+        .modal-overlay.open { opacity: 1; pointer-events: all; }
+
+        .modal-content {
+            background: #1a1f35;
+            padding: 40px;
+            border-radius: 12px;
+            max-width: 600px;
+            width: 90%;
+            border: 1px solid var(--primary);
+            position: relative;
+            transform: scale(0.7);
+            transition: 0.3s;
+        }
+
+        .modal-overlay.open .modal-content { transform: scale(1); }
+
+        .close-modal {
+            position: absolute;
+            top: 15px; right: 20px;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: var(--text-muted);
+        }
+        .close-modal:hover { color: white; }
+
+        /* Footer */
+        footer { text-align: center; padding: 20px; color: var(--text-muted); border-top: 1px solid rgba(255,255,255,0.1); margin-top: 40px; }
+
+    </style>
+</head>
+<body>
+
+    <nav>
+        <div class="logo">Nexus<span>AI</span></div>
+        <div class="search-container">
+            <input type="text" id="searchInput" placeholder="Search topics...">
+        </div>
+    </nav>
+
+    <header>
+        <h1>Future <span>Intelligence</span></h1>
+        <p>Curated insights on Artificial Intelligence and Machine Learning</p>
+    </header>
+
+    <div class="filter-container" id="filterContainer">
+        <button class="filter-btn active" onclick="filterPosts('All')">All</button>
+        </div>
+
+    <div class="container">
+        <div class="grid" id="blogGrid"></div>
+    </div>
+
+    <footer>
+        <p>&copy; 2025 NexusAI Blog. Designed with HTML CSS JS.</p>
+    </footer>
+
+    <div class="modal-overlay" id="modal">
+        <div class="modal-content">
+            <span class="close-modal" onclick="closeModal()">&times;</span>
+            <h2 id="modalTitle">Article Title</h2>
+            <br>
+            <div id="modalBody" style="color: #ccc; line-height: 1.6;"></div>
+            <br>
+            <button class="read-btn" onclick="closeModal()">Close Article</button>
+        </div>
+    </div>
+
+    <script>
+        // --- DATA ---
+        const posts = [
+            { id: 1, title: "The Rise of LLMs", category: "NLP", desc: "Large Language Models are changing how we code and communicate.", gradient: "gradient-1" },
+            { id: 2, title: "Computer Vision Future", category: "Robotics", desc: "How robots use cameras to navigate complex environments.", gradient: "gradient-2" },
+            { id: 3, title: "AI Ethics Dilemma", category: "Ethics", desc: "Addressing bias in algorithms before it's too late.", gradient: "gradient-3" },
+            { id: 4, title: "Generative Art Tools", category: "Creative", desc: "From Midjourney to Sora: The evolution of digital art.", gradient: "gradient-1" },
+            { id: 5, title: "Python for AI", category: "Code", desc: "Why Python remains the king of Data Science languages.", gradient: "gradient-2" },
+            { id: 6, title: "Neural Networks 101", category: "NLP", desc: "Understanding the layers behind Deep Learning models.", gradient: "gradient-3" },
+            { id: 7, title: "Automation in 2025", category: "Robotics", desc: "How factories are becoming fully autonomous.", gradient: "gradient-1" }
+        ];
+
+        const grid = document.getElementById('blogGrid');
+        const filterContainer = document.getElementById('filterContainer');
+        const searchInput = document.getElementById('searchInput');
+        const modal = document.getElementById('modal');
+        const modalTitle = document.getElementById('modalTitle');
+        const modalBody = document.getElementById('modalBody');
+
+        // --- INIT ---
+        window.addEventListener('DOMContentLoaded', () => {
+            generateFilterButtons();
+            renderPosts(posts);
+        });
+
+        // --- RENDER POSTS ---
+        function renderPosts(data) {
+            grid.innerHTML = "";
+            if(data.length === 0) {
+                grid.innerHTML = `<p style="text-align:center; grid-column: 1/-1; color: gray;">No results found.</p>`;
+                return;
+            }
+
+            data.forEach(post => {
+                const card = document.createElement('div');
+                card.className = 'card';
+                card.innerHTML = `
+                    <div class="card-img ${post.gradient}"></div>
+                    <div class="card-content">
+                        <span class="tag">${post.category}</span>
+                        <h2>${post.title}</h2>
+                        <p>${post.desc}</p>
+                        <button class="read-btn" onclick="openModal('${post.title}', '${post.desc}')">Read Article</button>
+                    </div>
+                `;
+                grid.appendChild(card);
+            });
+        }
+
+        // --- GENERATE FILTERS ---
+        function generateFilterButtons() {
+            // Get unique categories
+            const categories = ['All', ...new Set(posts.map(p => p.category))];
+            
+            // Keep the "All" button, clear others to avoid duplicates if re-run
+            filterContainer.innerHTML = ''; 
+
+            categories.forEach(cat => {
+                const btn = document.createElement('button');
+                btn.className = cat === 'All' ? 'filter-btn active' : 'filter-btn';
+                btn.innerText = cat;
+                btn.onclick = () => filterPosts(cat);
+                filterContainer.appendChild(btn);
+            });
+        }
+
+        // --- FILTER LOGIC ---
+        function filterPosts(category) {
+            // Update active button style
+            const buttons = document.querySelectorAll('.filter-btn');
+            buttons.forEach(btn => {
+                if(btn.innerText === category) btn.classList.add('active');
+                else btn.classList.remove('active');
+            });
+
+            // Filter Data
+            if (category === 'All') {
+                renderPosts(posts);
+            } else {
+                const filtered = posts.filter(post => post.category === category);
+                renderPosts(filtered);
+            }
+        }
+
+        // --- SEARCH LOGIC ---
+        searchInput.addEventListener('input', (e) => {
+            const term = e.target.value.toLowerCase();
+            const filtered = posts.filter(p => 
+                p.title.toLowerCase().includes(term) || 
+                p.category.toLowerCase().includes(term)
+            );
+            renderPosts(filtered);
+            
+            // Reset filter buttons visually
+            document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+        });
+
+        // --- MODAL LOGIC ---
+        function openModal(title, desc) {
+            modalTitle.innerText = title;
+            // Simulating full content by repeating the description
+            modalBody.innerHTML = `
+                <p><strong>Introduction</strong><br>${desc}</p>
+                <br>
+                <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation.</p>
+                <br>
+                <p>Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident.</p>
+            `;
+            modal.classList.add('open');
+        }
+
+        function closeModal() {
+            modal.classList.remove('open');
+        }
+
+        // Close modal if clicking outside content
+        modal.addEventListener('click', (e) => {
+            if (e.target === modal) closeModal();
+        });
+
+    </script>
+</body>
+</html>
